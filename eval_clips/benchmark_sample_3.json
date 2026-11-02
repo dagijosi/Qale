@@ -1,0 +1,7 @@
+{
+  "timestamp": "benchmark_sample_3",
+  "raw_text": "The backend exposes RESTful APIs built with Node.js and PostgreSQL.",
+  "final_text": "The backend exposes RESTful APIs built with Node.js and PostgreSQL.",
+  "expected": "The backend exposes RESTful APIs built with Node.js and PostgreSQL.",
+  "profile": "ts"
+}

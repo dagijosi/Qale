@@ -1,0 +1,7 @@
+{
+  "timestamp": "benchmark_sample_1",
+  "raw_text": "Building a React app with TypeScript, Tailwind CSS, and Zustand.",
+  "final_text": "Building a React app with TypeScript, Tailwind CSS, and Zustand.",
+  "expected": "Building a React app with TypeScript, Tailwind CSS, and Zustand.",
+  "profile": "ts"
+}

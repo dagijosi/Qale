@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qalē HUD</title>
+  <style>
+    :root {
+      --bg: rgba(15, 15, 17, 0.96);
+      --border: rgba(255, 255, 255, 0.09);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-tertiary: #71717A;
+      --accent-record: #EF4444;
+      --accent-process: #EAB308;
+      --accent-done: #10B981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Minimalist Precision Hardware Card */
+    .hud-card {
+      width: 480px;
+      height: 64px;
+      background: var(--bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    /* Left Metadata Section */
+    .meta-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 200px;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-record);
+      flex-shrink: 0;
+      transition: background-color 0.2s ease;
+    }
+
+    .status-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .separator {
+      color: var(--text-tertiary);
+      font-size: 11px;
+    }
+
+    .target-app {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      max-width: 130px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hw-chip {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 1px 5px;
+      letter-spacing: 0.1px;
+      line-height: 14px;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .hint-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-left: 14px;
+    }
+
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 16px;
+      padding: 0 4px;
+      font-size: 10px;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    /* Right Waveform Display */
+    .wave-container {
+      width: 200px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hud-card" id="hud-card">
+    <div class="meta-group">
+      <div class="status-line">
+        <div class="status-dot" id="status-dot"></div>
+        <span class="status-text" id="status-text">Recording</span>
+        <span class="separator">/</span>
+        <span class="profile-chip" id="profile-chip" style="display: none; font-family: ui-monospace, monospace; font-size: 10px; font-weight: 600; color: #60A5FA; background: rgba(59, 130, 246, 0.14); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; padding: 1px 5px; line-height: 13px; text-transform: uppercase;">TS</span>
+        <span class="target-app" id="target-app">VS Code</span>
+        <span class="hw-chip" id="hw-chip">2050 · small</span>
+      </div>
+      <div class="hint-line" id="hint-line">
+        <span>Press</span>
+        <kbd id="hotkey-kbd">F8</kbd>
+        <span id="hint-action">to finish</span>
+      </div>
+    </div>
+
+    <div class="wave-container">
+      <canvas id="wave-canvas" width="400" height="76"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('wave-canvas');
+    const ctx = canvas.getContext('2d');
+    const NUM_BARS = 24;
+
+    let targetLevels = new Array(NUM_BARS).fill(0.08);
+    let currentLevels = new Array(NUM_BARS).fill(0.08);
+    let phase = 0;
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      phase += 0.04;
+
+      const cw = canvas.width;
+      const ch = canvas.height;
+      const cy = ch / 2;
+      const barWidth = 6;
+      const totalSpacing = cw - (NUM_BARS * barWidth);
+      const gap = totalSpacing / (NUM_BARS - 1);
+
+      for (let i = 0; i < NUM_BARS; i++) {
+        // Precise spring interpolation without overshoot
+        currentLevels[i] += (targetLevels[i] - currentLevels[i]) * 0.28;
+
+        // Subtle resting baseline ripple
+        const idle = Math.sin(phase + i * 0.25) * 0.05;
+        const level = Math.max(0.06, Math.min(1.0, currentLevels[i] + idle));
+
+        const barHeight = Math.max(4, level * (ch - 12));
+        const x = i * (barWidth + gap);
+        const y = cy - (barHeight / 2);
+        const radius = barWidth / 2;
+
+        // Monochromatic elegance: bright center with quiet edge falloff
+        const centerDist = Math.abs(i - (NUM_BARS - 1) / 2) / (NUM_BARS / 2);
+        const alpha = Math.max(0.35, 0.95 - (centerDist * 0.45));
+
+        ctx.fillStyle = `rgba(250, 250, 250, ${alpha.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, radius);
+        ctx.fill();
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    render();
+
+    // ==========================================
+    // Python Bridge
+    // ==========================================
+    window.setWaveLevels = function(levels) {
+      if (Array.isArray(levels)) {
+        for (let i = 0; i < NUM_BARS; i++) {
+          if (i < levels.length) {
+            targetLevels[i] = levels[i];
+          }
+        }
+      }
+    };
+
+    window.showListening = function(targetName, hotkeyStr, hwStr, profileStr) {
+      document.getElementById('status-dot').style.backgroundColor = 'var(--accent-record)';
+      document.getElementById('status-text').innerText = 'Recording';
+      document.getElementById('target-app').innerText = targetName || 'Active Editor';
+      document.getElementById('hotkey-kbd').innerText = (hotkeyStr || 'F8').toUpperCase();
+      document.getElementById('hint-action').innerText = 'to finish';
+      const chip = document.getElementById('hw-chip');
+      if (hwStr) {
+        chip.innerText = hwStr;
+        chip.style.display = 'inline-flex';
+      } else {
+        chip.style.display = 'none';
+      }
+
+      const pChip = document.getElementById('profile-chip');
+      if (profileStr) {
+        pChip.innerText = profileStr.toUpperCase();
+        pChip.style.display = 'inline-flex';
+      } else {
+        pChip.style.display = 'none';
+      }
+    };
+
+    window.showFormatting = function() {
+      document.getElementById('status-dot').style.backgroundColor = 'var(--accent-process)';
+      document.getElementById('status-text').innerText = 'Formatting';
+      document.getElementById('hint-action').innerText = 'pasting code';
+
+      // Settle bars down cleanly
+      for (let i = 0; i < NUM_BARS; i++) {
+        targetLevels[i] = 0.12;
+      }
+    };
+
+    window.showDone = function(targetName, latencyStr) {
+      document.getElementById('status-dot').style.backgroundColor = 'var(--accent-done)';
+      document.getElementById('status-text').innerText = 'Pasted';
+      document.getElementById('target-app').innerText = targetName || 'Active Editor';
+      document.getElementById('hint-action').innerText = 'ready';
+
+      const chip = document.getElementById('hw-chip');
+      if (latencyStr) {
+        chip.innerText = latencyStr;
+        chip.style.display = 'inline-flex';
+      }
+
+      for (let i = 0; i < NUM_BARS; i++) {
+        targetLevels[i] = 0.06;
+      }
+    };
+  </script>
+</body>
+</html>

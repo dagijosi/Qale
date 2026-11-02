@@ -1,0 +1,7 @@
+{
+  "timestamp": "benchmark_sample_2",
+  "raw_text": "Run the script using python main.py and pip install numpy.",
+  "final_text": "Run the script using python main.py and pip install numpy.",
+  "expected": "Run the script using python main.py and pip install numpy.",
+  "profile": "py"
+}

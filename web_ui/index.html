@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qalē Settings</title>
+  <style>
+    :root {
+      --bg: #0C0C0E;
+      --sidebar: #09090B;
+      --card: #121215;
+      --card-hover: #16161A;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-focus: rgba(255, 255, 255, 0.25);
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-tertiary: #71717A;
+      --accent-record: #EF4444;
+      --accent-process: #EAB308;
+      --accent-done: #10B981;
+      --accent-blue: #3B82F6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 230px;
+      background-color: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      padding: 20px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: #18181B;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--text-primary);
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 400;
+    }
+
+    .nav-list {
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 450;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background-color: rgba(255, 255, 255, 0.07);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+    }
+
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.8;
+      color: currentColor;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 7px 11px;
+      border-radius: 7px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent-done);
+      border-radius: 50%;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg);
+      overflow-y: auto;
+    }
+
+    .header-bar {
+      padding: 16px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(12, 12, 14, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.12s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background-color: var(--text-primary);
+      color: #09090B;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-primary:hover {
+      background-color: #FFFFFF;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.22);
+    }
+    .btn-danger:hover {
+      background-color: rgba(239, 68, 68, 0.18);
+    }
+
+    /* Content Panels */
+    .panel {
+      display: none;
+      padding: 28px;
+      max-width: 880px;
+    }
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Setting Cards & Rows */
+    .card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      letter-spacing: -0.15px;
+      color: var(--text-primary);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .setting-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .setting-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .setting-desc {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+    }
+
+    /* Hardware Switch Toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #27272A;
+      transition: .18s ease;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #A1A1AA;
+      transition: .18s ease;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #FAFAFA;
+      border-color: #FAFAFA;
+    }
+    input:checked + .slider:before {
+      transform: translateX(18px);
+      background-color: #09090B;
+    }
+
+    /* Key Badge */
+    .hotkey-badge {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text-primary);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+      transition: all 0.12s ease;
+    }
+    .hotkey-badge:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Key Preset Chips */
+    .key-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+    .key-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Preset Pack Chips */
+    .preset-pack-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .preset-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preset-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Form Inputs & Selects */
+    select, input[type="text"], textarea {
+      background-color: #09090B;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 7px 11px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.12s ease;
+    }
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: var(--border-focus);
+    }
+    textarea {
+      width: 100%;
+      height: 96px;
+      resize: vertical;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* VU Meter Bar */
+    .vu-meter-container {
+      width: 100%;
+      height: 7px;
+      background-color: #18181B;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      margin-top: 10px;
+    }
+    .vu-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #10B981, #EAB308, #EF4444);
+      transition: width 0.06s ease;
+    }
+
+    /* Vocabulary & Symbols Table */
+    .vocab-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .vocab-table th {
+      text-align: left;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    .vocab-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 12.5px;
+    }
+    .vocab-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge-tag {
+      background-color: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      background-color: #09090B;
+      border-radius: 6px;
+    }
+
+    /* History Cards */
+    .history-card {
+      background: #0E0E11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.12s ease;
+    }
+    .history-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+    .history-content {
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 10px;
+      border-radius: 5px;
+      border: 1px solid var(--border-subtle);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Minimalist Card Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #18181B;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-primary);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Qalē</div>
+        <div class="brand-subtitle">Voice-to-Code Assistant</div>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <div class="nav-item active" onclick="switchTab('general')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        General
+      </div>
+      <div class="nav-item" onclick="switchTab('audio')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+        Audio & Mic
+      </div>
+      <div class="nav-item" onclick="switchTab('ai')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"></path></svg>
+        AI & Contexts
+      </div>
+      <div class="nav-item" onclick="switchTab('vocab')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>
+        Vocabulary
+      </div>
+      <div class="nav-item" onclick="switchTab('symbols')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 20l4-16M4 8l4 4-4 4M20 8l-4 4 4 4"/></svg>
+        Symbols & Actions
+      </div>
+      <div class="nav-item" onclick="switchTab('playground')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Playground
+      </div>
+      <div class="nav-item" onclick="switchTab('history')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Recent History
+      </div>
+      <div class="nav-item" onclick="switchTab('diagnostics')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Diagnostics
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span id="sidebar-status-text">Active · Ready</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content View -->
+  <main class="main-content">
+    <div class="header-bar">
+      <div class="page-title" id="page-title">General Settings</div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="minimizeToTray()">Minimize to Tray</button>
+        <button class="btn btn-primary" onclick="saveAllSettings()">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- 1. GENERAL TAB -->
+    <section class="panel active" id="panel-general">
+      <div class="card">
+        <div class="card-title">Dictation Trigger & Activation</div>
+        <div class="card-subtitle">Global shortcut to activate speech recognition from VS Code, Cursor, Terminal, or any app.</div>
+        
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Activation Key</span>
+            <span class="setting-desc">Click to record a new key, or choose from popular presets below.</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="hotkey-badge" id="btn-hotkey" onclick="changeHotkey()">F8</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 10px; display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 11px; color: var(--text-tertiary);">Quick Presets:</span>
+          <span class="key-chip" onclick="setHotkeyPreset('F8')">F8</span>
+          <span class="key-chip" onclick="setHotkeyPreset('F9')">F9</span>
+          <span class="key-chip" onclick="setHotkeyPreset('F10')">F10</span>
+          <span class="key-chip" onclick="setHotkeyPreset('Ctrl+Space')">Ctrl+Space</span>
+          <span class="key-chip" onclick="setHotkeyPreset('Alt+V')">Alt+V</span>
+        </div>
+
+        <div class="setting-row" style="margin-top: 14px;">
+          <div class="setting-info">
+            <span class="setting-label">Trigger Mode</span>
+            <span class="setting-desc">Toggle (tap key to speak, tap again to paste) or Push-to-Talk (hold key).</span>
+          </div>
+          <select id="sel-trigger-mode" style="width: 220px;">
+            <option value="toggle">Toggle (Tap to start / stop)</option>
+            <option value="push_to_talk">Push-to-Talk (Hold key)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Injection & Editor Integration</div>
+        <div class="card-subtitle">Controls how transformed code syntax is delivered to your focused window.</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Injection Method</span>
+            <span class="setting-desc">Clipboard paste provides instantaneous injection; Simulated typing sends keystrokes.</span>
+          </div>
+          <select id="sel-paste-method" style="width: 220px;">
+            <option value="clipboard">Clipboard Paste (Instant & Fast)</option>
+            <option value="typing">Simulated Keystrokes (Natural)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Preserve Clipboard Content</span>
+            <span class="setting-desc">Restores your previous clipboard text after pasting so copied code is never lost.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-preserve-clipboard" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Keystroke Typing Speed</span>
+            <span class="setting-desc">Speed per character when using simulated keystrokes (5ms = very fast).</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="range" id="rng-typing-speed" min="2" max="30" value="10" style="width: 120px;" oninput="document.getElementById('lbl-typing-speed').innerText = this.value + 'ms'">
+            <span id="lbl-typing-speed" style="font-family: ui-monospace, monospace; font-size: 11px; width: 36px; color: var(--text-secondary);">10ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">HUD & System Behavior</div>
+        <div class="card-subtitle">Appearance and background integration settings.</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">HUD Screen Position</span>
+            <span class="setting-desc">Where the floating sound wave overlay appears on your display.</span>
+          </div>
+          <select id="sel-hud-position" style="width: 200px;">
+            <option value="bottom_center">Bottom Center (Default)</option>
+            <option value="top_center">Top Center</option>
+            <option value="bottom_right">Bottom Right</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Floating Sound Wave HUD</span>
+            <span class="setting-desc">Displays the non-activating hardware audio visualizer pill during dictation.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-floating-hud" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Audio Chimes</span>
+            <span class="setting-desc">Play subtle tones when speech recording starts and finishes.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-sounds" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Start on Windows Boot</span>
+            <span class="setting-desc">Launch Qalē silently in the background when your computer boots up.</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="chk-startup" onchange="toggleStartup(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. AUDIO TAB -->
+    <section class="panel" id="panel-audio">
+      <div class="card">
+        <div class="card-title">Microphone Configuration</div>
+        <div class="card-subtitle">Select and test audio recording input with real-time level feedback.</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Input Device</span>
+            <span class="setting-desc">Microphone used for speech capture.</span>
+          </div>
+          <select id="sel-audio-device" style="width: 260px;">
+            <option value="">Default System Microphone</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 500;">
+            <span style="color: var(--text-secondary);">Live Input Level</span>
+            <span id="vu-db" style="color: var(--text-primary); font-family: ui-monospace, monospace; font-size: 11.5px;">Idle</span>
+          </div>
+          <div class="vu-meter-container">
+            <div class="vu-meter-fill" id="vu-fill"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <button class="btn btn-secondary" id="btn-test-mic" onclick="testMic()">▶ Test Microphone</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. AI & CONTEXTS TAB -->
+    <section class="panel" id="panel-ai">
+      <div class="card">
+        <div class="card-title">Speech-to-Text Model</div>
+        <div class="card-subtitle">Offline OpenAI Whisper engine running on your NVIDIA RTX 2050 GPU.</div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Model Size</span>
+            <span class="setting-desc">'small.en' (~244M) is highly accurate; 'base.en' (~74M) is ultralight and fastest.</span>
+          </div>
+          <select id="sel-model-size" style="width: 220px;">
+            <option value="small.en">small.en (Recommended, 244M)</option>
+            <option value="base.en">base.en (Ultra-fast, 74M)</option>
+            <option value="tiny.en">tiny.en (Ultralight, 39M)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Active Context Profiles</div>
+        <div class="card-subtitle">Qalē automatically detects your foreground window and tailors recognition vocabulary.</div>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+          <span class="preset-chip" style="color: #60A5FA;">TS · TypeScript / React</span>
+          <span class="preset-chip" style="color: #34D399;">PY · Python / AI</span>
+          <span class="preset-chip" style="color: #F472B6;">SYS · Systems (Rust / Go / C++)</span>
+          <span class="preset-chip" style="color: #FBBF24;">OPS · DevOps / Docker / SQL</span>
+          <span class="preset-chip" style="color: #A78BFA;">CLI · Terminal & Shell</span>
+          <span class="preset-chip" style="color: #9CA3AF;">DOC · Prose & Notes</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Developer Context Biasing Prompt</div>
+        <div class="card-subtitle">Guides Whisper recognition towards your tech stack, programming symbols, and custom terms.</div>
+        <textarea id="txt-dev-prompt"></textarea>
+      </div>
+    </section>
+
+    <!-- 4. VOCABULARY TAB -->
+    <section class="panel" id="panel-vocab">
+      <div class="card">
+        <div class="card-title">1-Click Developer Preset Packs</div>
+        <div class="card-subtitle">Instantly import industry-standard programming terms, libraries, and phonetic sound-alikes.</div>
+        
+        <div class="preset-pack-container">
+          <button class="preset-chip" onclick="importPresetPack('react_nextjs')">+ React & Next.js</button>
+          <button class="preset-chip" onclick="importPresetPack('python_ml')">+ Python & AI/ML</button>
+          <button class="preset-chip" onclick="importPresetPack('git_terminal')">+ Git & Terminal</button>
+          <button class="preset-chip" onclick="importPresetPack('devops_cloud')">+ DevOps & Cloud</button>
+          <button class="preset-chip" onclick="importPresetPack('rust_go')">+ Rust & Go</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div class="card-title">Technical Terms & Sound-Alikes</div>
+          <span id="vocab-count" style="font-size: 11.5px; color: var(--text-tertiary); font-family: ui-monospace, monospace;">0 terms</span>
+        </div>
+        <div class="card-subtitle">Translates spoken words into precise code syntax, libraries, and casing conventions.</div>
+
+        <input type="text" class="search-box" id="vocab-search" placeholder="Filter terms (e.g. Next.js, PostgreSQL, Zustand, useState)..." oninput="filterVocab()">
+
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="new-spoken" placeholder="Spoken (e.g. 'view js')" style="flex: 1;" onkeydown="if(event.key==='Enter') addVocabTerm()">
+          <input type="text" id="new-target" placeholder="Output (e.g. 'Vue.js')" style="flex: 1;" onkeydown="if(event.key==='Enter') addVocabTerm()">
+          <button class="btn btn-secondary" onclick="addVocabTerm()">+ Add Term</button>
+        </div>
+
+        <div style="max-height: 380px; overflow-y: auto;">
+          <table class="vocab-table">
+            <thead>
+              <tr>
+                <th>When You Say</th>
+                <th>Qalē Types</th>
+                <th style="width: 44px;"></th>
+              </tr>
+            </thead>
+            <tbody id="vocab-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SYMBOLS & ACTIONS TAB -->
+    <section class="panel" id="panel-symbols">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div class="card-title">Symbols & Punctuation Mappings</div>
+          <span id="sym-count" style="font-size: 11.5px; color: var(--text-tertiary); font-family: ui-monospace, monospace;">0 symbols</span>
+        </div>
+        <div class="card-subtitle">Spoken phrases that map directly to code punctuation, brackets, operators, and syntax.</div>
+        
+        <input type="text" class="search-box" id="sym-search" placeholder="Filter symbols (e.g. arrow, curly, backslash, equals)..." oninput="filterSymbols()">
+
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="new-sym-spoken" placeholder="You Say (e.g. 'lambda')" style="flex: 1;" onkeydown="if(event.key==='Enter') addSymbol()">
+          <input type="text" id="new-sym-target" placeholder="Qalē Types (e.g. '=>')" style="flex: 1;" onkeydown="if(event.key==='Enter') addSymbol()">
+          <button class="btn btn-secondary" onclick="addSymbol()">+ Add Symbol</button>
+        </div>
+
+        <div style="max-height: 320px; overflow-y: auto;">
+          <table class="vocab-table">
+            <thead>
+              <tr>
+                <th>You Say</th>
+                <th>Qalē Types</th>
+                <th style="width: 44px;"></th>
+              </tr>
+            </thead>
+            <tbody id="sym-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Built-in Voice Actions</div>
+        <div class="card-subtitle">Voice-activated keyboard shortcuts and editor commands that execute instantaneously.</div>
+        <table class="vocab-table">
+          <thead><tr><th>Say This</th><th>Simulated Keystroke</th></tr></thead>
+          <tbody>
+            <tr><td>go back / erase that / delete that</td><td><span class="badge-tag">⌫ Backspace</span></td></tr>
+            <tr><td>go back [N] times (e.g. "go back 3 times")</td><td><span class="badge-tag">⌫ Backspace × N</span></td></tr>
+            <tr><td>new line / newline</td><td><span class="badge-tag">↵ Enter</span></td></tr>
+            <tr><td>tab / indent</td><td><span class="badge-tag">⇥ Tab</span></td></tr>
+            <tr><td>select all</td><td><span class="badge-tag">Ctrl + A</span></td></tr>
+            <tr><td>copy that / copy selection</td><td><span class="badge-tag">Ctrl + C</span></td></tr>
+            <tr><td>cut that / cut selection</td><td><span class="badge-tag">Ctrl + X</span></td></tr>
+            <tr><td>undo / undo that</td><td><span class="badge-tag">Ctrl + Z</span></td></tr>
+            <tr><td>escape / press escape</td><td><span class="badge-tag">Esc</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. PLAYGROUND TAB -->
+    <section class="panel" id="panel-playground">
+      <div class="card">
+        <div class="card-title">🧪 Voice Syntax Playground</div>
+        <div class="card-subtitle">Type raw speech to test the exact real-time transformations produced by Qalē's Python syntax engine.</div>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+          <input type="text" id="playground-input" placeholder="Type raw speech text here (e.g. 'camel case fetch user profile')..." style="flex: 1;" onkeydown="if(event.key==='Enter') runPlayground()">
+          <select id="playground-profile" style="width: 160px;">
+            <option value="ts">TypeScript / React</option>
+            <option value="py">Python</option>
+            <option value="systems">Systems (Rust/Go)</option>
+            <option value="devops">DevOps / SQL</option>
+            <option value="term">Terminal</option>
+            <option value="prose">Prose</option>
+          </select>
+          <button class="btn btn-primary" onclick="runPlayground()">▶ Parse & Format</button>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
+          <span style="font-size: 11px; color: var(--text-tertiary); margin-top: 3px;">Try Examples:</span>
+          <span class="key-chip" onclick="setPlaygroundExample('camel case fetch user profile')">camel case fetch user profile</span>
+          <span class="key-chip" onclick="setPlaygroundExample('const API URL = https colon slash slash api dot example dot com slash v1')">const API URL = URL</span>
+          <span class="key-chip" onclick="setPlaygroundExample('snake case get user by id')">snake case get user by id</span>
+          <span class="key-chip" onclick="setPlaygroundExample('fat arrow strictly equals curly braces')">fat arrow strictly equals</span>
+          <span class="key-chip" onclick="setPlaygroundExample('comment initialize application state')">comment initialize state</span>
+          <span class="key-chip" onclick="setPlaygroundExample('go back 3 times')">go back 3 times</span>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px;">Engine Output</span>
+            <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="copyPlaygroundOutput()">Copy Output</button>
+          </div>
+          <div id="playground-output" style="background: #09090B; border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; font-family: ui-monospace, monospace; font-size: 13.5px; min-height: 48px; color: var(--text-primary); white-space: pre-wrap; word-break: break-all;"></div>
+          <div id="playground-meta" style="margin-top: 8px; font-size: 11px; color: var(--text-tertiary);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. HISTORY TAB -->
+    <section class="panel" id="panel-history">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div class="card-title">Recent Dictations Log</div>
+          <button class="btn btn-secondary" style="padding: 3px 9px; font-size: 11px;" onclick="loadHistory()">⟳ Refresh</button>
+        </div>
+        <div class="card-subtitle">Every dictated snippet is kept here in case you need to re-copy or reference past transcriptions.</div>
+        
+        <div id="history-container" style="max-height: 500px; overflow-y: auto; margin-top: 10px;">
+          <p style="font-size: 12.5px; color: var(--text-tertiary); padding: 20px 0; text-align: center;">No dictations recorded yet in this session.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. DIAGNOSTICS TAB -->
+    <section class="panel" id="panel-diagnostics">
+      <div class="card">
+        <div class="card-title">System & Accelerator Diagnostics</div>
+        <div class="card-subtitle">Live hardware acceleration, speech engine status, and runtime environment.</div>
+        <div id="diagnostics-content" style="font-size: 13px; line-height: 1.8; color: var(--text-secondary);">
+          <p>Loading diagnostics...</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔤 Developer Case Voice Commands</div>
+        <div class="card-subtitle">Say any of these prefixes followed by your words to format identifiers instantly.</div>
+        <table class="vocab-table">
+          <thead><tr><th>Say This</th><th>Example Output</th></tr></thead>
+          <tbody>
+            <tr><td>camel case [phrase]</td><td><span class="badge-tag">camelCaseIdentifier</span></td></tr>
+            <tr><td>snake case [phrase]</td><td><span class="badge-tag">snake_case_identifier</span></td></tr>
+            <tr><td>pascal case [phrase]</td><td><span class="badge-tag">PascalCaseIdentifier</span></td></tr>
+            <tr><td>constant case / all caps [phrase]</td><td><span class="badge-tag">CONSTANT_CASE_NAME</span></td></tr>
+            <tr><td>kebab case [phrase]</td><td><span class="badge-tag">kebab-case-name</span></td></tr>
+            <tr><td>title case [phrase]</td><td><span class="badge-tag">Title Case Phrase</span></td></tr>
+            <tr><td>train case [phrase]</td><td><span class="badge-tag">Train-Case-Header</span></td></tr>
+            <tr><td>dot case / package case [phrase]</td><td><span class="badge-tag">package.subpackage.module</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">Settings saved</div>
+
+  <script>
+    let appConfig = {};
+    let soundAlikes = {};
+    let symbolsData = {};
+    let micTestInterval = null;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+
+      const titles = {
+        'general': 'General Settings',
+        'audio': 'Audio & Microphone',
+        'ai': 'AI & Context Profiles',
+        'vocab': 'Technical Vocabulary & Presets',
+        'symbols': 'Symbols & Actions',
+        'playground': 'Voice Syntax Playground',
+        'history': 'Recent Dictations History',
+        'diagnostics': 'Status & Diagnostics'
+      };
+
+      document.getElementById('page-title').innerText = titles[tabId] || 'Settings';
+      const targetPanel = document.getElementById('panel-' + tabId);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      const activeNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick')?.includes(tabId));
+      if (activeNav) activeNav.classList.add('active');
+
+      if (tabId === 'diagnostics') loadDiagnostics();
+      if (tabId === 'symbols') renderSymbolsTable(symbolsData);
+      if (tabId === 'history') loadHistory();
+    }
+
+    window.addEventListener('pywebviewready', async () => {
+      try {
+        appConfig = await window.pywebview.api.get_config();
+        loadConfigToUI(appConfig);
+
+        const devices = await window.pywebview.api.get_audio_devices();
+        populateDevices(devices);
+      } catch (e) {
+        console.error('Failed to load pywebview API:', e);
+      }
+    });
+
+    function loadConfigToUI(cfg) {
+      if (!cfg) return;
+      document.getElementById('btn-hotkey').innerText = (cfg.general?.hotkey || 'f8').toUpperCase();
+      document.getElementById('sel-trigger-mode').value = cfg.general?.trigger_mode || 'toggle';
+      document.getElementById('sel-paste-method').value = cfg.general?.paste_method || 'clipboard';
+      document.getElementById('chk-preserve-clipboard').checked = cfg.general?.preserve_clipboard ?? true;
+      document.getElementById('sel-hud-position').value = cfg.general?.hud_position || 'bottom_center';
+      
+      const speed = cfg.general?.typing_speed_ms || 10;
+      document.getElementById('rng-typing-speed').value = speed;
+      document.getElementById('lbl-typing-speed').innerText = speed + 'ms';
+
+      document.getElementById('chk-floating-hud').checked = cfg.general?.show_floating_hud ?? true;
+      document.getElementById('chk-sounds').checked = cfg.general?.play_sounds ?? true;
+      document.getElementById('chk-startup').checked = cfg.general?.run_on_startup ?? false;
+
+      document.getElementById('sel-model-size').value = cfg.ai?.model_size || 'small.en';
+      document.getElementById('txt-dev-prompt').value = cfg.ai?.developer_prompt || '';
+
+      soundAlikes = cfg.sound_alikes || {};
+      renderVocabTable(soundAlikes);
+
+      symbolsData = cfg.symbols || {};
+      renderSymbolsTable(symbolsData);
+    }
+
+    function populateDevices(devices) {
+      const select = document.getElementById('sel-audio-device');
+      select.innerHTML = '<option value="">Default System Microphone</option>';
+      if (!devices) return;
+      devices.forEach(dev => {
+        const opt = document.createElement('option');
+        opt.value = dev.index;
+        opt.innerText = dev.name;
+        select.appendChild(opt);
+      });
+      if (appConfig.audio?.device_index !== null && appConfig.audio?.device_index !== undefined) {
+        select.value = appConfig.audio.device_index;
+      }
+    }
+
+    function setHotkeyPreset(key) {
+      document.getElementById('btn-hotkey').innerText = key.toUpperCase();
+      showToast('Hotkey set to ' + key.toUpperCase());
+    }
+
+    function renderVocabTable(terms) {
+      const tbody = document.getElementById('vocab-tbody');
+      tbody.innerHTML = '';
+      const keys = Object.keys(terms);
+      document.getElementById('vocab-count').innerText = `${keys.length} terms`;
+
+      keys.forEach(spoken => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span style="color: var(--text-secondary);">${escapeHtml(spoken)}</span></td>
+          <td><span class="badge-tag">${escapeHtml(terms[spoken])}</span></td>
+          <td style="text-align: right;">
+            <button class="btn btn-danger" style="padding: 3px 7px; font-size: 11px;" onclick="deleteVocab('${escapeJs(spoken)}')">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterVocab() {
+      const q = document.getElementById('vocab-search').value.toLowerCase();
+      const filtered = {};
+      Object.keys(soundAlikes).forEach(k => {
+        if (k.toLowerCase().includes(q) || soundAlikes[k].toLowerCase().includes(q)) {
+          filtered[k] = soundAlikes[k];
+        }
+      });
+      renderVocabTable(filtered);
+    }
+
+    function addVocabTerm() {
+      const spoken = document.getElementById('new-spoken').value.trim();
+      const target = document.getElementById('new-target').value.trim();
+      if (!spoken || !target) return;
+      soundAlikes[spoken] = target;
+      document.getElementById('new-spoken').value = '';
+      document.getElementById('new-target').value = '';
+      renderVocabTable(soundAlikes);
+      showToast(`Added term: ${target}`);
+    }
+
+    function deleteVocab(key) {
+      delete soundAlikes[key];
+      renderVocabTable(soundAlikes);
+    }
+
+    async function importPresetPack(packId) {
+      if (window.pywebview?.api?.load_preset_pack) {
+        const res = await window.pywebview.api.load_preset_pack(packId);
+        if (res.success) {
+          soundAlikes = res.sound_alikes;
+          renderVocabTable(soundAlikes);
+          showToast(`+ Added ${res.added_count} terms from ${res.pack_name}!`);
+        }
+      }
+    }
+
+    function renderSymbolsTable(data) {
+      const tbody = document.getElementById('sym-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const keys = Object.keys(data);
+      const countEl = document.getElementById('sym-count');
+      if (countEl) countEl.innerText = `${keys.length} symbols`;
+
+      keys.forEach(phrase => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span style="color: var(--text-secondary);">${escapeHtml(phrase)}</span></td>
+          <td><span class="badge-tag">${escapeHtml(data[phrase])}</span></td>
+          <td style="text-align: right;">
+            <button class="btn btn-danger" style="padding: 3px 7px; font-size: 11px;" onclick="deleteSymbol('${escapeJs(phrase)}')">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterSymbols() {
+      const q = document.getElementById('sym-search').value.toLowerCase();
+      const filtered = {};
+      Object.keys(symbolsData).forEach(k => {
+        if (k.toLowerCase().includes(q) || symbolsData[k].toLowerCase().includes(q)) filtered[k] = symbolsData[k];
+      });
+      renderSymbolsTable(filtered);
+    }
+
+    function addSymbol() {
+      const spoken = document.getElementById('new-sym-spoken').value.trim();
+      const target = document.getElementById('new-sym-target').value.trim();
+      if (!spoken || !target) return;
+      symbolsData[spoken] = target;
+      document.getElementById('new-sym-spoken').value = '';
+      document.getElementById('new-sym-target').value = '';
+      renderSymbolsTable(symbolsData);
+      showToast(`Added symbol: ${target}`);
+    }
+
+    function deleteSymbol(key) {
+      delete symbolsData[key];
+      renderSymbolsTable(symbolsData);
+    }
+
+    async function saveAllSettings() {
+      appConfig.general = appConfig.general || {};
+      appConfig.general.hotkey = document.getElementById('btn-hotkey').innerText.toLowerCase();
+      appConfig.general.trigger_mode = document.getElementById('sel-trigger-mode').value;
+      appConfig.general.paste_method = document.getElementById('sel-paste-method').value;
+      appConfig.general.preserve_clipboard = document.getElementById('chk-preserve-clipboard').checked;
+      appConfig.general.typing_speed_ms = parseInt(document.getElementById('rng-typing-speed').value);
+      appConfig.general.hud_position = document.getElementById('sel-hud-position').value;
+      appConfig.general.show_floating_hud = document.getElementById('chk-floating-hud').checked;
+      appConfig.general.play_sounds = document.getElementById('chk-sounds').checked;
+      appConfig.general.run_on_startup = document.getElementById('chk-startup').checked;
+
+      const devVal = document.getElementById('sel-audio-device').value;
+      appConfig.audio = appConfig.audio || {};
+      appConfig.audio.device_index = devVal === '' ? null : parseInt(devVal);
+
+      appConfig.ai = appConfig.ai || {};
+      appConfig.ai.model_size = document.getElementById('sel-model-size').value;
+      appConfig.ai.developer_prompt = document.getElementById('txt-dev-prompt').value;
+
+      appConfig.sound_alikes = soundAlikes;
+      appConfig.symbols = symbolsData;
+
+      if (window.pywebview?.api) {
+        await window.pywebview.api.save_config(appConfig);
+      }
+      showToast('Settings saved successfully!');
+    }
+
+    async function toggleStartup(enabled) {
+      if (window.pywebview?.api) {
+        await window.pywebview.api.toggle_startup(enabled);
+      }
+    }
+
+    async function minimizeToTray() {
+      if (window.pywebview?.api) {
+        await window.pywebview.api.minimize_to_tray();
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
+    }
+
+    function changeHotkey() {
+      const btn = document.getElementById('btn-hotkey');
+      const original = btn.innerText;
+      btn.innerText = 'Press any key...';
+      btn.style.color = '#EAB308';
+      function onKey(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let key = e.key;
+        if (key === ' ') key = 'Space';
+        if (key === 'Escape') { btn.innerText = original; btn.style.color = ''; document.removeEventListener('keydown', onKey, true); return; }
+        btn.innerText = key.toUpperCase();
+        btn.style.color = '';
+        document.removeEventListener('keydown', onKey, true);
+      }
+      document.addEventListener('keydown', onKey, true);
+    }
+
+    function setPlaygroundExample(text) {
+      document.getElementById('playground-input').value = text;
+      runPlayground();
+    }
+
+    async function runPlayground() {
+      const input = document.getElementById('playground-input').value;
+      const profile = document.getElementById('playground-profile').value;
+      const output = document.getElementById('playground-output');
+      const meta = document.getElementById('playground-meta');
+
+      if (!input.trim()) {
+        output.textContent = '';
+        meta.textContent = '';
+        return;
+      }
+
+      if (window.pywebview?.api?.test_parse) {
+        const res = await window.pywebview.api.test_parse(input, profile);
+        if (res.success && res.parsed) {
+          const p = res.parsed;
+          if (p.type === 'action') {
+            output.textContent = `[Keystroke Action: ${p.action} × ${p.count || 1}]`;
+            meta.innerHTML = `<span class="badge-tag">Action</span> ${p.action}`;
+          } else {
+            output.textContent = p.content;
+            meta.innerHTML = `<span class="badge-tag">Formatted Text</span> Transformed for profile: <strong>${profile.toUpperCase()}</strong>`;
+          }
+          return;
+        }
+      }
+
+      // Fallback preview if pywebview not connected
+      output.textContent = input;
+      meta.textContent = 'Preview';
+    }
+
+    function copyPlaygroundOutput() {
+      const text = document.getElementById('playground-output').innerText;
+      if (text) {
+        copyText(text);
+      }
+    }
+
+    async function loadHistory() {
+      const container = document.getElementById('history-container');
+      if (!container) return;
+
+      if (window.pywebview?.api?.get_history) {
+        const list = await window.pywebview.api.get_history();
+        if (list && list.length > 0) {
+          container.innerHTML = '';
+          list.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.innerHTML = `
+              <div class="history-header">
+                <div>
+                  <span style="font-weight: 600; color: var(--text-primary);">${escapeHtml(item.target || 'Active Window')}</span>
+                  <span style="margin: 0 4px;">·</span>
+                  <span class="badge-tag" style="font-size: 10px; padding: 1px 4px;">${escapeHtml((item.profile || 'ts').toUpperCase())}</span>
+                  ${item.latency ? `<span style="margin-left: 6px; font-family: ui-monospace, monospace;">${escapeHtml(item.latency)}</span>` : ''}
+                </div>
+                <div>${escapeHtml(item.timestamp || '')}</div>
+              </div>
+              <div class="history-content">${escapeHtml(item.text)}</div>
+              <div style="text-align: right;">
+                <button class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="copyText('${escapeJs(item.text)}')">Copy</button>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+          return;
+        }
+      }
+
+      container.innerHTML = '<p style="font-size: 12.5px; color: var(--text-tertiary); padding: 20px 0; text-align: center;">No dictations recorded yet in this session.</p>';
+    }
+
+    async function copyText(str) {
+      if (window.pywebview?.api?.copy_to_clipboard) {
+        await window.pywebview.api.copy_to_clipboard(str);
+      } else {
+        navigator.clipboard.writeText(str);
+      }
+      showToast('Copied to clipboard!');
+    }
+
+    async function testMic() {
+      const btn = document.getElementById('btn-test-mic');
+      const fill = document.getElementById('vu-fill');
+      const dbLabel = document.getElementById('vu-db');
+      
+      if (micTestInterval) {
+        clearInterval(micTestInterval);
+        micTestInterval = null;
+        fill.style.width = '0%';
+        dbLabel.innerText = 'Connected';
+        btn.innerText = '▶ Test Microphone';
+        return;
+      }
+
+      btn.innerText = '⏹ Stop Test';
+      dbLabel.innerText = 'Listening...';
+      const devVal = document.getElementById('sel-audio-device').value;
+      const devIdx = devVal === '' ? null : parseInt(devVal);
+      let count = 0;
+
+      micTestInterval = setInterval(async () => {
+        count++;
+        try {
+          if (window.pywebview?.api?.get_mic_level) {
+            const level = await window.pywebview.api.get_mic_level(devIdx);
+            const pct = Math.min(100, Math.round(level * 100));
+            fill.style.width = pct + '%';
+            dbLabel.innerText = pct > 4 ? `Active (${pct}%)` : 'Quiet';
+          }
+        } catch (e) {
+          fill.style.width = '0%';
+        }
+        if (count >= 40) {
+          clearInterval(micTestInterval);
+          micTestInterval = null;
+          fill.style.width = '0%';
+          dbLabel.innerText = 'Connected';
+          btn.innerText = '▶ Test Microphone';
+        }
+      }, 90);
+    }
+
+    async function loadDiagnostics() {
+      const el = document.getElementById('diagnostics-content');
+      if (!el) return;
+      try {
+        const cfg = appConfig;
+        el.innerHTML = `
+          <p>🦁 <strong>Qalē</strong> &mdash; Developer Voice-to-Code Assistant</p>
+          <p>🤖 Speech Engine: <strong>OpenAI Whisper (${cfg.ai?.model_size || 'small.en'})</strong></p>
+          <p>⚡ Acceleration: <strong>NVIDIA GeForce RTX 2050 (CUDA FP16)</strong></p>
+          <p>🎙️ Sample Rate: <strong>${cfg.audio?.sample_rate || 16000} Hz (16-bit Mono)</strong></p>
+          <p>⌨️ Global Hotkey: <strong>${(cfg.general?.hotkey || 'f8').toUpperCase()}</strong> (${cfg.general?.trigger_mode || 'toggle'} mode)</p>
+          <p>📋 Injection Mode: <strong>${cfg.general?.paste_method === 'clipboard' ? 'Instant Clipboard (Ctrl+V) with auto-restore' : 'Natural Keystrokes'}</strong></p>
+          <p>📚 Loaded Vocab Terms: <strong>${Object.keys(soundAlikes || {}).length}</strong></p>
+          <p>⌨️ Configured Symbols: <strong>${Object.keys(symbolsData || {}).length}</strong></p>
+          <p style="margin-top:14px; color: var(--text-tertiary); font-size:11px;">Built by Dagmawi Yoseph in Addis Ababa, Ethiopia 🇪🇹</p>
+        `;
+      } catch(e) {
+        el.innerHTML = '<p>Could not load diagnostics.</p>';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function escapeJs(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+  </script>
+</body>
+</html>
